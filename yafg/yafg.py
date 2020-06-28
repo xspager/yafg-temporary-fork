@@ -42,6 +42,7 @@ class YafgTreeprocessor(Treeprocessor):
                 par.set("class", self.figureClass)
             par.set("id", "__yafg-figure-{}".format(self.figureNumber))
             par.text = "\n"
+            par.tail = "\n"
 
             img.tail = "\n"
             if self.stripTitle:
@@ -87,7 +88,7 @@ class YafgExtension(Extension):
                     figureNumberText=self.getConfig("figureNumberText"),
                 ),
                 "yafgtreeprocessor",
-                15)
+                8)
 
 def makeExtension(**kwargs):
     return YafgExtension(**kwargs)

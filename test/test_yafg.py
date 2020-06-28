@@ -152,13 +152,24 @@ This is a paragraph without image.
         outString = markdown.markdown(inString, extensions = [yafg.YafgExtension(figureNumbering=True, figureNumberText="Abbildung")])
         self.assertEqual(expectedString, outString)
 
+    def test_attribute_preservation(self):
+        inString = """\
+![alt text](/path/to/image.png "Title"){: #someid .someclass somekey='some value' }"""
+        expectedString = """\
+<figure id="__yafg-figure-1">
+<img alt="alt text" class="someclass" id="someid" somekey="some value" src="/path/to/image.png" title="Title" />
+<figcaption>Title</figcaption>
+</figure>"""
+        outString = markdown.markdown(inString, extensions = ["attr_list", yafg.YafgExtension()])
+        self.assertEqual(expectedString, outString)
+
     def test_combined_options(self):
         inString = """\
-![alt text](/path/to/image.png "Title")"""
+![alt text](/path/to/image.png "Title"){: #someid .someclass somekey='some value' }"""
         expectedString = """\
 <figure class="testclass1" id="__yafg-figure-1">
-<img alt="alt text" src="/path/to/image.png" />
+<img alt="alt text" class="someclass" id="someid" somekey="some value" src="/path/to/image.png" />
 <figcaption class="testclass2"><span class="testclass3">Abbildung&nbsp;1:</span> Title</figcaption>
 </figure>"""
-        outString = markdown.markdown(inString, extensions = [yafg.YafgExtension(stripTitle=True, figureClass="testclass1", figcaptionClass="testclass2", figureNumbering=True, figureNumberClass="testclass3", figureNumberText="Abbildung")])
+        outString = markdown.markdown(inString, extensions = ["attr_list", yafg.YafgExtension(stripTitle=True, figureClass="testclass1", figcaptionClass="testclass2", figureNumbering=True, figureNumberClass="testclass3", figureNumberText="Abbildung")])
         self.assertEqual(expectedString, outString)
