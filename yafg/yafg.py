@@ -40,6 +40,7 @@ class YafgTreeprocessor(Treeprocessor):
                 par.set(k, v)
             if self.figureClass is not "":
                 par.set("class", self.figureClass)
+            par.set("id", "__yafg-figure-{}".format(self.figureNumber))
             par.text = "\n"
 
             img.tail = "\n"
