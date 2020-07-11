@@ -33,6 +33,8 @@ It contains multiple paragraphs as well as [links](https://example.com).
 
 # This is a headline.
 
+[This is a link without an image in it](https://example.com)
+
 Nothing should change here whilst using yafg."""
         expectedString = markdown.markdown(inString)
         outString = markdown.markdown(inString, extensions = [yafg.YafgExtension()])
@@ -163,12 +165,23 @@ This is a paragraph without image.
         outString = markdown.markdown(inString, extensions = ["attr_list", yafg.YafgExtension()])
         self.assertEqual(expectedString, outString)
 
+    def test_image_in_link(self):
+        inString = """\
+[![alt text](/path/to/image.png "Title")](/path/to/link.html)"""
+        expectedString = """\
+<figure id="__yafg-figure-1">
+<a href="/path/to/link.html"><img alt="alt text" src="/path/to/image.png" title="Title" /></a>
+<figcaption>Title</figcaption>
+</figure>"""
+        outString = markdown.markdown(inString, extensions = [yafg.YafgExtension()])
+        self.assertEqual(expectedString, outString)
+
     def test_combined_options(self):
         inString = """\
-![alt text](/path/to/image.png "Title"){: #someid .someclass somekey='some value' }"""
+[![alt text](/path/to/image.png "Title"){: #someid .someclass somekey='some value' }](/path/to/link.html)"""
         expectedString = """\
 <figure class="testclass1" id="__yafg-figure-1">
-<img alt="alt text" class="someclass" id="someid" somekey="some value" src="/path/to/image.png" />
+<a href="/path/to/link.html"><img alt="alt text" class="someclass" id="someid" somekey="some value" src="/path/to/image.png" /></a>
 <figcaption class="testclass2"><span class="testclass3">Abbildung&nbsp;1:</span> Title</figcaption>
 </figure>"""
         outString = markdown.markdown(inString, extensions = ["attr_list", yafg.YafgExtension(stripTitle=True, figureClass="testclass1", figcaptionClass="testclass2", figureNumbering=True, figureNumberClass="testclass3", figureNumberText="Abbildung")])

@@ -26,12 +26,27 @@ class YafgTreeprocessor(Treeprocessor):
         self.figureNumberClass = figureNumberClass
         self.figureNumberText = figureNumberText
 
+    @staticmethod
+    def matchChildren(par):
+        a = None
+        img = par.find("./img")
+        if img is None:
+            a = par.find("./a")
+            if a is not None:
+                img = a.find("./img")
+                if img is None:
+                    a = None
+        return (img, a)
+
     def run(self, root):
-        for par in root.findall("./p[img]"):
+        for par in root.findall("./p"):
+            img, a = YafgTreeprocessor.matchChildren(par)
+            if img is None:
+                continue
+
             self.figureNumber += 1
 
             attrib = par.attrib
-            img = par.find("img")
             title = img.get("title")
 
             par.clear()
@@ -44,10 +59,15 @@ class YafgTreeprocessor(Treeprocessor):
             par.text = "\n"
             par.tail = "\n"
 
-            img.tail = "\n"
             if self.stripTitle:
                 del img.attrib["title"]
-            par.append(img)
+
+            if a is not None:
+                a.tail = "\n"
+                par.append(a)
+            else:
+                img.tail = "\n"
+                par.append(img)
 
             figcaption = ElementTree.SubElement(par, "figcaption")
             if self.figcaptionClass is not "":
