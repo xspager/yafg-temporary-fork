@@ -38,17 +38,8 @@ class YafgTreeprocessor(Treeprocessor):
                     a = None
         return (img, a)
 
-    def run(self, root):
-        for par in root.findall("./p"):
-            img, a = YafgTreeprocessor.matchChildren(par)
-            if img is None:
-                continue
-
-            self.figureNumber += 1
-
+    def buildFigureElement(self, par):
             attrib = par.attrib
-            title = img.get("title")
-
             par.clear()
             par.tag = "figure"
             for k, v in attrib.items():
@@ -59,20 +50,10 @@ class YafgTreeprocessor(Treeprocessor):
             par.text = "\n"
             par.tail = "\n"
 
-            if self.stripTitle:
-                del img.attrib["title"]
-
-            if a is not None:
-                a.tail = "\n"
-                par.append(a)
-            else:
-                img.tail = "\n"
-                par.append(img)
-
+    def buildFigcaptionElement(self, par, title):
             figcaption = ElementTree.SubElement(par, "figcaption")
             if self.figcaptionClass is not "":
                 figcaption.set("class", self.figcaptionClass)
-
             if self.figureNumbering:
                 figureNumberSpan = ElementTree.SubElement(figcaption, "span")
                 figureNumberSpan.text = "{}&nbsp;{}:".format(self.figureNumberText, self.figureNumber)
@@ -81,8 +62,28 @@ class YafgTreeprocessor(Treeprocessor):
                     figureNumberSpan.set("class", self.figureNumberClass)
             else:
                 figcaption.text = title
-
             figcaption.tail = "\n"
+
+    def run(self, root):
+        for par in root.findall("./p"):
+            img, a = YafgTreeprocessor.matchChildren(par)
+            if img is None:
+                continue
+
+            self.figureNumber += 1
+
+            self.buildFigureElement(par)
+            if a is not None:
+                a.tail = "\n"
+                par.append(a)
+            else:
+                img.tail = "\n"
+                par.append(img)
+            self.buildFigcaptionElement(par, img.get("title"))
+
+            if self.stripTitle:
+                del img.attrib["title"]
+
 
 class YafgExtension(Extension):
     def __init__(self, **kwargs):
