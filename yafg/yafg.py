@@ -12,6 +12,7 @@ class YafgTreeprocessor(Treeprocessor):
             self,
             md,
             stripTitle,
+            generateSource,
             figureClass,
             figcaptionClass,
             figureNumbering,
@@ -19,6 +20,7 @@ class YafgTreeprocessor(Treeprocessor):
             figureNumberText):
         self.md = md
         self.stripTitle = stripTitle
+        self.generateSource = generateSource
         self.figureClass = figureClass
         self.figcaptionClass = figcaptionClass
         self.figureNumbering = figureNumbering
@@ -41,7 +43,7 @@ class YafgTreeprocessor(Treeprocessor):
     def buildFigureElement(self, par):
             attrib = par.attrib
             par.clear()
-            par.tag = "figure"
+            par.tag = "picture"
             for k, v in attrib.items():
                 par.set(k, v)
             if self.figureClass is not "":
@@ -64,6 +66,11 @@ class YafgTreeprocessor(Treeprocessor):
                 figcaption.text = title
             figcaption.tail = "\n"
 
+    def buildSourceElement(self, par, img):
+        source = ElementTree.SubElement(par, "source")
+        source.set("class", "source-1")
+        source.set("src", img.get("src", ""))
+
     def run(self, root):
         for par in root.findall("./p"):
             img, a = YafgTreeprocessor.matchChildren(par)
@@ -83,12 +90,15 @@ class YafgTreeprocessor(Treeprocessor):
 
             if self.stripTitle:
                 del img.attrib["title"]
+            if self.generateSource:
+                self.buildSourceElement(par, img)
 
 
 class YafgExtension(Extension):
     def __init__(self, **kwargs):
         self.config = {
                 "stripTitle" : [False, "Strip the title from the <img />."],
+                "generateSource": [False, "Add a <source> element inside the figure."],
                 "figureClass" : ["", "CSS class to add to the <figure /> element."],
                 "figcaptionClass" : ["", "CSS class to add to the <figcaption /> element."],
                 "figureNumbering" : [False, "Show the figure number in front of the image caption."],
@@ -102,6 +112,7 @@ class YafgExtension(Extension):
                 YafgTreeprocessor(
                     md,
                     stripTitle=self.getConfig("stripTitle"),
+                    generateSource=self.getConfig("generateSource"),
                     figureClass=self.getConfig("figureClass"),
                     figcaptionClass=self.getConfig("figcaptionClass"),
                     figureNumbering=self.getConfig("figureNumbering"),
