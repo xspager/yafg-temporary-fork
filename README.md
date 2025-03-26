@@ -1,8 +1,8 @@
 # yafg-temporary-fork maybe? - Yet Another Figure Generator Temporary Fork Maybe?
 
-This is a fork of yafg by me so I can quickly generate <picture> tags and to be used in conjunction with <https://github.com/pelican-plugins/image-process>. I'm sorry if I never come back to do something about it. all credits and apologies to Philipp Trommler.
+This is a fork of yafg by me so I can quickly generate `<picture>` tags and to be used in conjunction with <https://github.com/pelican-plugins/image-process>. I'm sorry if I never come back to do something about it. all credits and apologies to Philipp Trommler.
 
-This should work as the original extension but generate a <picture>, a made up tag, and also have an optional generateSource to add a <source> tag inside the made up tag <picture>
+This should work as the original extension but generate a `<picture>`, a made up tag, and also have an optional generateSource to add a `<source>` tag inside the made up tag `<picture>`
 
 The following is the original README:
 
