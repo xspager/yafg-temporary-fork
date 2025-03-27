@@ -46,7 +46,7 @@ class YafgTreeprocessor(Treeprocessor):
             par.tag = "picture"
             for k, v in attrib.items():
                 par.set(k, v)
-            if self.figureClass is not "":
+            if self.figureClass:
                 par.set("class", self.figureClass)
             par.set("id", "__yafg-figure-{}".format(self.figureNumber))
             par.text = "\n"
@@ -54,13 +54,13 @@ class YafgTreeprocessor(Treeprocessor):
 
     def buildFigcaptionElement(self, par, title):
             figcaption = ElementTree.SubElement(par, "figcaption")
-            if self.figcaptionClass is not "":
+            if self.figcaptionClass:
                 figcaption.set("class", self.figcaptionClass)
             if self.figureNumbering:
                 figureNumberSpan = ElementTree.SubElement(figcaption, "span")
                 figureNumberSpan.text = "{}&nbsp;{}:".format(self.figureNumberText, self.figureNumber)
                 figureNumberSpan.tail = " {}".format(title)
-                if self.figureNumberClass is not "":
+                if self.figureNumberClass:
                     figureNumberSpan.set("class", self.figureNumberClass)
             else:
                 figcaption.text = title
