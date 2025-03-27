@@ -88,9 +88,9 @@ class YafgTreeprocessor(Treeprocessor):
             else:
                 img.tail = "\n"
                 par.append(img)
-            self.buildFigcaptionElement(par, img.get("title"))
+            self.buildFigcaptionElement(par, img.get("title", ""))
 
-            if self.stripTitle:
+            if self.stripTitle and "title" in img.attrib:
                 del img.attrib["title"]
             if self.imageClass:
                 img.set("class", self.imageClass)
