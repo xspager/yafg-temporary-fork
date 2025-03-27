@@ -187,13 +187,13 @@ This is a paragraph without image.
         outString = markdown.markdown(inString, extensions = ["attr_list", yafg.YafgExtension(stripTitle=True, figureClass="testclass1", figcaptionClass="testclass2", figureNumbering=True, figureNumberClass="testclass3", figureNumberText="Abbildung")])
         self.assertEqual(expectedString, outString)
 
-    def test_source(self):
+    def test_with_image_with_class_and_with_source(self):
         inString = """\
-![alt text](/path/to/image.png "Title"){: .someClass }"""
+![alt text](/path/to/image.png "Title. *some* _markdown_ **format** <http://example.com>")"""
         expectedString = """\
 <picture id="__yafg-figure-1">
 <img alt="alt text" class="someClass" src="/path/to/image.png" />
-<figcaption>Title</figcaption>
+<figcaption><div>Title. <em>some</em> <em>markdown</em> <strong>format</strong> <a href="http://example.com">http://example.com</a></div></figcaption>
 <source class="source-1" src="/path/to/image.png" /></picture>"""
-        outString = markdown.markdown(inString, extensions = ["attr_list", yafg.YafgExtension(stripTitle=True, generateSource=True)])
+        outString = markdown.markdown(inString, extensions = ["attr_list", yafg.YafgExtension(stripTitle=True, generateSource=True, imageClass="someClass")])
         self.assertEqual(expectedString, outString)

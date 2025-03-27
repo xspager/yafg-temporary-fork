@@ -3,6 +3,8 @@
 # Copyright (c) 2019-2020 Philipp Trommler
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
+import re
+import markdown
 from markdown.extensions import Extension
 from markdown.treeprocessors import Treeprocessor
 from xml.etree import ElementTree
@@ -65,7 +67,14 @@ class YafgTreeprocessor(Treeprocessor):
                 if self.figureNumberClass:
                     figureNumberSpan.set("class", self.figureNumberClass)
             else:
-                figcaption.text = title
+                if title:
+                    html_title = ElementTree.fromstring(
+                        re.sub("(^<p>)", "<div>", re.sub("(</p>$)", "</div>", markdown.markdown(title)))
+                    )
+                    figcaption.append(html_title)
+                else:
+                    figcaption.text = ""
+        
             figcaption.tail = "\n"
 
     def buildSourceElement(self, par, img):
