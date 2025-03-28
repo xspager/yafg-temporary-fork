@@ -42,40 +42,43 @@ class YafgTreeprocessor(Treeprocessor):
                 img = a.find("./img")
                 if img is None:
                     a = None
+
         return (img, a)
 
     def buildFigureElement(self, par):
-            attrib = par.attrib
-            par.clear()
-            par.tag = "picture"
-            for k, v in attrib.items():
-                par.set(k, v)
-            if self.figureClass:
-                par.set("class", self.figureClass)
-            par.set("id", "__yafg-figure-{}".format(self.figureNumber))
-            par.text = "\n"
-            par.tail = "\n"
+        img = par.find("./img")
+        figure = ElementTree.SubElement(par, "picture")
+        attrib = img.attrib
+        for k, v in attrib.items():
+            figure.set(k, v)
+        if self.figureClass:
+            figure.set("class", self.figureClass)
+        figure.set("id", "__yafg-figure-{}".format(self.figureNumber))
+        figure.text = "\n"
+        figure.tail = "\n"
+
+        return figure
 
     def buildFigcaptionElement(self, par, title):
-            figcaption = ElementTree.SubElement(par, "figcaption")
-            if self.figcaptionClass:
-                figcaption.set("class", self.figcaptionClass)
-            if self.figureNumbering:
-                figureNumberSpan = ElementTree.SubElement(figcaption, "span")
-                figureNumberSpan.text = "{}&nbsp;{}:".format(self.figureNumberText, self.figureNumber)
-                figureNumberSpan.tail = " {}".format(title)
-                if self.figureNumberClass:
-                    figureNumberSpan.set("class", self.figureNumberClass)
+        figcaption = ElementTree.SubElement(par, "figcaption")
+        if self.figcaptionClass:
+            figcaption.set("class", self.figcaptionClass)
+        if self.figureNumbering:
+            figureNumberSpan = ElementTree.SubElement(figcaption, "span")
+            figureNumberSpan.text = "{}&nbsp;{}:".format(self.figureNumberText, self.figureNumber)
+            figureNumberSpan.tail = " {}".format(title)
+            if self.figureNumberClass:
+                figureNumberSpan.set("class", self.figureNumberClass)
+        else:
+            if title:
+                html_title = ElementTree.fromstring(
+                    re.sub("(^<p>)", "<div>", re.sub("(</p>$)", "</div>", markdown.markdown(title)))
+                )
+                figcaption.append(html_title)
             else:
-                if title:
-                    html_title = ElementTree.fromstring(
-                        re.sub("(^<p>)", "<div>", re.sub("(</p>$)", "</div>", markdown.markdown(title)))
-                    )
-                    figcaption.append(html_title)
-                else:
-                    figcaption.text = ""
-        
-            figcaption.tail = "\n"
+                figcaption.text = ""
+    
+        figcaption.tail = "\n"
 
     def buildSourceElement(self, par, img):
         source = ElementTree.SubElement(par, "source")
@@ -83,28 +86,27 @@ class YafgTreeprocessor(Treeprocessor):
         source.set("src", img.get("src", ""))
 
     def run(self, root):
-        for par in root.findall("./p"):
-            img, a = YafgTreeprocessor.matchChildren(par)
-            if img is None:
-                continue
+        for par in root.findall(".//img/.."):
+            img = par.find("./img")
 
             self.figureNumber += 1
 
-            self.buildFigureElement(par)
-            if a is not None:
-                a.tail = "\n"
-                par.append(a)
-            else:
-                img.tail = "\n"
-                par.append(img)
-            self.buildFigcaptionElement(par, img.get("title", ""))
+            figure = self.buildFigureElement(par)
+        
+            img.tail = "\n"
+            figure.append(img)
+            par.remove(img)
+            self.buildFigcaptionElement(figure, img.get("title", ""))
 
-            if self.stripTitle and "title" in img.attrib:
-                del img.attrib["title"]
+            if self.stripTitle:
+                if "title" in img.attrib:
+                    del img.attrib["title"]
+                if "title" in par.attrib:
+                    del par.attrib["title"]
             if self.imageClass:
                 img.set("class", self.imageClass)
             if self.generateSource:
-                self.buildSourceElement(par, img)
+                self.buildSourceElement(figure, img)
 
 
 class YafgExtension(Extension):

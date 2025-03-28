@@ -187,7 +187,19 @@ This is a paragraph without image.
         outString = markdown.markdown(inString, extensions = ["attr_list", yafg.YafgExtension(stripTitle=True, figureClass="testclass1", figcaptionClass="testclass2", figureNumbering=True, figureNumberClass="testclass3", figureNumberText="Abbildung")])
         self.assertEqual(expectedString, outString)
 
-    def test_with_image_with_class_and_with_source(self):
+    def test_with_image_in_link_with_class_and_with_source_foo(self):
+        inString = """\
+[![alt text](/path/to/image.png "Title. *some* _markdown_ **format** <http://example.com>")](/path/to/link.html)"""
+        expectedString = """\
+<p><picture alt="alt text" id="__yafg-figure-1" src="/path/to/image.png" title="Title. *some* _markdown_ **format** &lt;http://example.com&gt;">
+<a href="/path/to/link.html"><img alt="alt text" class="someClass" src="/path/to/image.png" /></a>
+<figcaption><div>Title. <em>some</em> <em>markdown</em> <strong>format</strong> <a href="http://example.com">http://example.com</a></div></figcaption>
+<source class="source-1" src="/path/to/image.png" /></picture>
+</p>"""
+        outString = markdown.markdown(inString, extensions = ["attr_list", yafg.YafgExtension(stripTitle=True, generateSource=True, imageClass="someClass")])
+        self.assertEqual(expectedString, outString)
+
+    def test_with_image_with_class_and_with_source_foo(self):
         inString = """\
 ![alt text](/path/to/image.png "Title. *some* _markdown_ **format** <http://example.com>")"""
         expectedString = """\
@@ -196,4 +208,15 @@ This is a paragraph without image.
 <figcaption><div>Title. <em>some</em> <em>markdown</em> <strong>format</strong> <a href="http://example.com">http://example.com</a></div></figcaption>
 <source class="source-1" src="/path/to/image.png" /></picture>"""
         outString = markdown.markdown(inString, extensions = ["attr_list", yafg.YafgExtension(stripTitle=True, generateSource=True, imageClass="someClass")])
+        self.assertEqual(expectedString, outString)
+
+    def test_my_specific_bug_with_pelican(self):
+        inString = """\
+
+![Picture from Pixabay : https://www.pexels.com/photo/blue-and-white-planet-display-87009/](/images/pexels-pixabay-87009.jpg "Famous Apollo 8 image titled *Earthrise*")
+
+"""
+        outString = markdown.markdown(inString, extensions = ["attr_list", yafg.YafgExtension(stripTitle=True, generateSource=True, imageClass="someClass")])
+        expectedString = """
+"""
         self.assertEqual(expectedString, outString)
